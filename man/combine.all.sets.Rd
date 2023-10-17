@@ -4,26 +4,39 @@
 \alias{combine.all.sets}
 \title{Combine the data from all sets of fcs files into combined files}
 \usage{
-combine.all.sets(inpath = getwd(), outpath = getwd(), filenames = NULL)
+combine.all.sets(
+  inpath = getwd(),
+  outpath = getwd(),
+  filenames = NULL,
+  returnFlowSet = FALSE
+)
 }
 \arguments{
-\item{inpath}{The folder/directory where the fcs files are located}
+\item{inpath}{The folder/directory where the fcs files are located
+(Defaults to the working directory)}
 
 \item{outpath}{The folder/directory where the combined fcs file
-will be written to}
+will be written to (Defaults to the working directory)}
 
-\item{filenames}{A data.frame which maps filenames to
-basenames. This data.frame needs two columns, one called
-`filename`, and another `basename`, where each row contains
-the name of the file in `filename`, and the name of the set it
-belongs to in `basename`; all the files with the same
-`basename` will be combined into one file `basename.fcs`.}
+\item{filenames}{Either NULL (the default), to automatically guess
+which files contain repeatedly measured samples and belong to
+each other. Otherwise it should be a data.frame which maps
+filenames to basenames. This data.frame needs two columns, one
+called `filename`, and another `basename`, where each row
+contains the name of the file in `filename`, and the name of
+the set it belongs to in `basename`; all the files with the
+same `basename` will be combined into one file `basename.fcs`.}
+
+\item{returnFlowSet}{Specify whether the combined data sets should
+be returned as a flowSet. (Default = FALSE)}
 }
 \value{
-This function does not return anything. Instead, it
-    creates a set of fcs files combining the events from several
-    files with the same basename. Existing files with that name
-    will be overwritten without warning.
+With returnFlowSet = TRUE this function returns a flowSet
+    of the just created combined files. Otherwise this function
+    does not return anything. In both cases a set of fcs files is
+    created, combining the events from several files with the same
+    basename. Existing files with that name will be overwritten
+    without warning.
 }
 \description{
 Combine the data from all sets of fcs files that come from
@@ -35,6 +48,9 @@ the data for a single set needs to be kept in memory to combine
 it.
 }
 \details{
+When specifying \code{returnFlowSet = TRUE}, the combined data
+sets are read back from disk and returned as a flowSet.
+
 The most simple usage would be simply as combine.all.sets(), to
 automatically combine files in the current working directory. This
 is equivalent to combine.all.sets(filenames=get.filenames()). To

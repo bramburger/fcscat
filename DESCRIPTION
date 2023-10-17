@@ -1,7 +1,7 @@
 Package: fcscat
 Type: Package
 Title: Catenate data in fcs files from different aliquots
-Version: 0.2
+Version: 0.3
 Date: 2023-10-15
 Author: c(person("Bram", "Burger", role=c("aut", "cre"), email="brbur@duck.com"),
              person(c("Maaike", "S.A."), "Jongen", role=c("aut")))

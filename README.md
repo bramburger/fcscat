@@ -82,6 +82,8 @@ Similarly, if the output files are not in the working directory, this can be spe
 
 By default this function internally calls `get.filenames()`. If this does not combine the desired files, the filenames and the new filenames for the combined files can be given explicitly. For example with `combine.all.sets(filenames = mapping)`, where `mapping` is a data.frame with the same structure (column names) as the one that would be created by calling `get.filenames()`.
 
+By default `combine.all.sets()` returns nothing. To get the combined data sets back as a `flowSet` specify `returnFlowSet = TRUE`, like `combine.all.sets(returnFlowSet = TRUE)`.
+
 
 ### Catenating files belonging to the same sample for a single sample
 

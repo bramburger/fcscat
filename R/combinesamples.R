@@ -99,6 +99,9 @@ combine.set <- function (filenames, basename,
 ##' the data for a single set needs to be kept in memory to combine
 ##' it.
 ##'
+##' When specifying \code{returnFlowSet = TRUE}, the combined data
+##' sets are read back from disk and returned as a flowSet.
+##'
 ##' The most simple usage would be simply as combine.all.sets(), to
 ##' automatically combine files in the current working directory. This
 ##' is equivalent to combine.all.sets(filenames=get.filenames()). To
@@ -121,18 +124,25 @@ combine.set <- function (filenames, basename,
 ##' in a set. See the help for `get.filenames` for more details.
 ##'
 ##' @param inpath The folder/directory where the fcs files are located
+##'     (Defaults to the working directory)
 ##' @param outpath The folder/directory where the combined fcs file
-##'     will be written to
-##' @param filenames A data.frame which maps filenames to
-##'     basenames. This data.frame needs two columns, one called
-##'     `filename`, and another `basename`, where each row contains
-##'     the name of the file in `filename`, and the name of the set it
-##'     belongs to in `basename`; all the files with the same
-##'     `basename` will be combined into one file `basename.fcs`.
-##' @return This function does not return anything. Instead, it
-##'     creates a set of fcs files combining the events from several
-##'     files with the same basename. Existing files with that name
-##'     will be overwritten without warning.
+##'     will be written to (Defaults to the working directory)
+##' @param filenames Either NULL (the default), to automatically guess
+##'     which files contain repeatedly measured samples and belong to
+##'     each other. Otherwise it should be a data.frame which maps
+##'     filenames to basenames. This data.frame needs two columns, one
+##'     called `filename`, and another `basename`, where each row
+##'     contains the name of the file in `filename`, and the name of
+##'     the set it belongs to in `basename`; all the files with the
+##'     same `basename` will be combined into one file `basename.fcs`.
+##' @param returnFlowSet Specify whether the combined data sets should
+##'     be returned as a flowSet. (Default = FALSE)
+##' @return With returnFlowSet = TRUE this function returns a flowSet
+##'     of the just created combined files. Otherwise this function
+##'     does not return anything. In both cases a set of fcs files is
+##'     created, combining the events from several files with the same
+##'     basename. Existing files with that name will be overwritten
+##'     without warning.
 combine.all.sets <- function (inpath = getwd(),
                               outpath = getwd(),
                               filenames = NULL,
@@ -140,17 +150,17 @@ combine.all.sets <- function (inpath = getwd(),
     if (is.null(filenames))
         filenames <- get.filenames(inpath)
     ## for every set of files we want to combine
-    if (returnFlowSet) {        
-        fset <- lapply(unique(filenames$basename), function (bname) {
-            fileset <- filenames[filenames$basename == bname, ]$filename
-            combine.set(fileset, bname, inpath, outpath)
-        })
-        gc()
-        return(flowCore::flowSet(fset))
-    }
     for (bname in unique(filenames$basename)) {
         fileset <- filenames[filenames$basename == bname, ]$filename
         combine.set(fileset, bname, inpath, outpath)
         gc()
+    }
+    if (returnFlowSet) {
+        return(read.flowSet(files=paste0(unique(filenames$basename),
+                                         ".fcs"),
+                            path=outpath,
+                            alter.names=FALSE,
+                            transformation=FALSE,
+                            truncate_max_range=FALSE))
     }
 }
