@@ -53,10 +53,10 @@ combine.set <- function (filenames, basename,
                          inpath = getwd(), outpath = getwd()) {
     ## Read the first file in the set of files that belong together
     first <- 
-        read.FCS(file.path(inpath, filenames[1]),
-                 transformation=FALSE,
-                 alter.names=FALSE,
-                 truncate_max_range=FALSE)
+        flowCore::read.FCS(file.path(inpath, filenames[1]),
+                           transformation=FALSE,
+                           alter.names=FALSE,
+                           truncate_max_range=FALSE)
 
     ## Combine the data from the different flowFrames into
     ## the `exprs` slot of the first one
@@ -64,10 +64,10 @@ combine.set <- function (filenames, basename,
     for (i in seq(2, length(filenames))) {
         exprs(first) <-
             rbind(exprs(first),
-                  exprs(read.FCS(file.path(inpath, filenames[i]),
-                                 transformation=FALSE,
-                                 alter.names=FALSE,
-                                 truncate_max_range=FALSE)))
+                  exprs(flowCore::read.FCS(file.path(inpath, filenames[i]),
+                                           transformation=FALSE,
+                                           alter.names=FALSE,
+                                           truncate_max_range=FALSE)))
     }
     
     ## Change the filename descriptors
@@ -135,10 +135,19 @@ combine.set <- function (filenames, basename,
 ##'     will be overwritten without warning.
 combine.all.sets <- function (inpath = getwd(),
                               outpath = getwd(),
-                              filenames = NULL) {
+                              filenames = NULL,
+                              returnFlowSet = FALSE) {
     if (is.null(filenames))
         filenames <- get.filenames(inpath)
     ## for every set of files we want to combine
+    if (returnFlowSet) {        
+        fset <- lapply(unique(filenames$basename), function (bname) {
+            fileset <- filenames[filenames$basename == bname, ]$filename
+            combine.set(fileset, bname, inpath, outpath)
+        })
+        gc()
+        return(flowCore::flowSet(fset))
+    }
     for (bname in unique(filenames$basename)) {
         fileset <- filenames[filenames$basename == bname, ]$filename
         combine.set(fileset, bname, inpath, outpath)
