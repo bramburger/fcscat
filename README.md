@@ -1,7 +1,9 @@
 # fcscat
 Catenate fcs files containing data from the same samples
 
-Combine the data from all sets of fcs files that come from repeated runs of samples from the same patient and under the same conditions, and write a set of combined files to disk. Neither the flowSet, nor the combined flowFrame for any of the sets are kept in memory after writing the combined flowFrame to disk, though all the data for a single set needs to be kept in memory to combine it.
+Combine the data from all sets of fcs files that come from repeated runs of samples from the same patient and under the same conditions, and write a set of combined files to disk. 
+
+When one set of files is combined, this flowFrame is retained in memory so it can be used without having to read it from disk again. When multiple sets of files are combined, these will not automatically be retained in memory.
 
 ## Installation
 
@@ -83,10 +85,12 @@ By default this function internally calls `get.filenames()`. If this does not co
 
 ### Catenating files belonging to the same sample for a single sample
 
-If the folder contains files belonging to only a single sample, or you want to combine just the files belonging to one sample, this can be done with the function `combine.set <- function (filenames, basename)`.
+If the folder contains files belonging to only a single sample, or you want to combine just the files belonging to one sample, this can be done with the function `combine.set(filenames, basename)`.
 Here `filenames` is a vector of strings containing all the filenames for the files that need to be combined into one (similar to the *column* `filename` in the output of `get.filenames()`), and `basename` is the filename for the output file *without* the trailing ".fcs" (`basename = "combined"` would produce the file `combined.fcs`).
 
 Again, all files are assumed to be in (and written to) the working directory, to specify where the input files are, use the `inpath` parameter, and to specify where the output files are, use the `outpath` parameter.
+
+Thus, with the example above, `combine.set(c("Blood 1_0-1 1_C04.fcs", "Blood 1_0-1 2_C05.fcs", "Blood 1_0-1 3_C06.fcs"), "Blood 1_0-1")` would combine those three files into the one file `Blood 1_0-1.fcs`. This version also returns a `flowFrame` with the combined data.
 
 **Please beware, if the output file already exists it is overwritten without warning.**
 
