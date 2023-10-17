@@ -19,14 +19,13 @@ data will be written to the combined fcs file.}
 will be written to}
 }
 \value{
-This function just returns `basename`, it does *not*
-    return any flowFrame or flowSet.
+This function returns a flowFrame with the combined data.
 }
 \description{
 Combine the data from a set of fcs files that come from repeated
 runs of samples from the same patient and under the same
-conditions, and write a combined file to disk. Neither the
-flowSet, nor the combined flowFrame are kept in memory after
-writing the combined flowFrame to disk, though all the data needs
-to be kept in memory to combine it.
+conditions, and write a combined file to disk. Only the combined
+flowFrame is kept in memory after writing the combined flowFrame
+to disk. During this process all the combined data *plus* the data
+from the last file needs to fit into memory.
 }

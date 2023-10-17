@@ -1,14 +1,14 @@
 Package: fcscat
 Type: Package
 Title: Catenate data in fcs files from different aliquots
-Version: 0.1
+Version: 0.2
 Date: 2023-10-15
 Author: c(person("Bram", "Burger", role=c("aut", "cre"), email="brbur@duck.com"),
              person(c("Maaike", "S.A."), "Jongen", role=c("aut")))
 Maintainer: Bram Burger <brbur@duck.com>
 Imports: data.table, flowCore
 Description: In the unfortunate setting where samples need to be measured in different runs, while the runs themselves can be seen as completely equivalent (no between-run 'batch' effects), the most straightforward way of analysing the data might be by first combining the different runs into one combined file for that subject/condition. Here we automate the catenation of data into one file for flow cytometry data in FCS files, assuming the file names follow a certain pattern: files should end with a space, followed by a number, then an underscore, the position of the sample on the plate (A-H (or a-h) and two numbers), and ".fcs" (or ".FCS").
-License: GPL-3
+License: GPL-3 + file LICENSE
 URL: https://github.com/bramburger/fcscat
 BugReports: https://github.com/bramburger/fcscat/issues
 Encoding: UTF-8

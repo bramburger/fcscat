@@ -36,10 +36,10 @@ get.filenames <- function(path = getwd()) {
 ##'
 ##' Combine the data from a set of fcs files that come from repeated
 ##' runs of samples from the same patient and under the same
-##' conditions, and write a combined file to disk. Neither the
-##' flowSet, nor the combined flowFrame are kept in memory after
-##' writing the combined flowFrame to disk, though all the data needs
-##' to be kept in memory to combine it.
+##' conditions, and write a combined file to disk. Only the combined
+##' flowFrame is kept in memory after writing the combined flowFrame
+##' to disk. During this process all the combined data *plus* the data
+##' from the last file needs to fit into memory.
 ##'
 ##' @param filenames A character vector containing filenames for each
 ##'     of the fcs files to combine. This is the order in which the
@@ -48,28 +48,35 @@ get.filenames <- function(path = getwd()) {
 ##' @param inpath The folder/directory where the fcs files are located
 ##' @param outpath The folder/directory where the combined fcs file
 ##'     will be written to
-##' @return This function just returns `basename`, it does *not*
-##'     return any flowFrame or flowSet.
+##' @return This function returns a flowFrame with the combined data.
 combine.set <- function (filenames, basename,
                          inpath = getwd(), outpath = getwd()) {
-    ## Read the set of files that belong together
-    fSet <- read.flowSet(files=filenames,
-                         path=inpath,
-                         alter.names=FALSE,
-                         transformation=FALSE,
-                         truncate_max_range=FALSE)
+    ## Read the first file in the set of files that belong together
+    first <- 
+        read.FCS(file.path(inpath, filenames[1]),
+                 transformation=FALSE,
+                 alter.names=FALSE,
+                 truncate_max_range=FALSE)
+
     ## Combine the data from the different flowFrames into
     ## the `exprs` slot of the first one
-    exprs(fSet[[1]]) <- do.call(rbind, fsApply(fSet, exprs,
-                                               simplify=FALSE))
-
+    ## One file after another
+    for (i in seq(2, length(filenames))) {
+        exprs(first) <-
+            rbind(exprs(first),
+                  exprs(read.FCS(file.path(inpath, filenames[i]),
+                                 transformation=FALSE,
+                                 alter.names=FALSE,
+                                 truncate_max_range=FALSE)))
+    }
+    
     ## Change the filename descriptors
     ## (which should be the only metadata we have to fix?)
     filename.slots <- c("$FIL", "GUID", "FILENAME",
                         "ORIGINALGUID", "GUID.original")
     for (kw in filename.slots) {
-        if (keyword(fSet[[1]], kw) == filenames[1]) {
-            keyword(fSet[[1]])[[kw]] <- paste0(basename, ".fcs")
+        if (keyword(first, kw) == filenames[1]) {
+            keyword(first)[[kw]] <- paste0(basename, ".fcs")
         }
     }
 
@@ -78,10 +85,8 @@ combine.set <- function (filenames, basename,
         dir.create(outpath)
 
     ## Write the combined flowFrame to file
-    write.FCS(fSet[[1]], file.path(outpath, paste0(basename, ".fcs")))
-    rm(fSet)
-    gc()
-    basename
+    write.FCS(first, file.path(outpath, paste0(basename, ".fcs")))
+    first
 }
 
 ##' Combine the data from all sets of fcs files into combined files
@@ -135,8 +140,8 @@ combine.all.sets <- function (inpath = getwd(),
         filenames <- get.filenames(inpath)
     ## for every set of files we want to combine
     for (bname in unique(filenames$basename)) {
-        fileset <- filenames[filenames$basename == bname, c("filename")]
+        fileset <- filenames[filenames$basename == bname, ]$filename
         combine.set(fileset, bname, inpath, outpath)
-    }    
+        gc()
+    }
 }
-
